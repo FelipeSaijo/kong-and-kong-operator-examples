@@ -1,7 +1,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: httpbin-route
+  name: nginx-route
   annotations:
     konghq.com/strip-path: "true"
 spec:
@@ -13,7 +13,7 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /test
+            value: /nginx
           method: "GET"
       filters:
         - type: ExtensionRef
@@ -22,6 +22,6 @@ spec:
             kind: KongPlugin
             name: rate-limiting
       backendRefs:
-        - name: maximu-frontend
+        - name: nginx-service
           kind: Service
-          port: 3000
+          port: 80

@@ -14,10 +14,17 @@ spec:
             readinessProbe:
               initialDelaySeconds: 1
               periodSeconds: 1
+## Create dataplane with service ClusterIP
     network:
       services:
         ingress:
           annotations: {}
+          type: ClusterIP
+## Create dataplane with service LoadBalancer
+#    network:
+#      services:
+#        ingress:
+#          annotations: {}
   controlPlaneOptions:
     deployment:
       podTemplateSpec:

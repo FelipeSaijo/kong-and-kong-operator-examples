@@ -14,14 +14,15 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
-    - name: https
-      hostname: test.com.br
-      port: 443
-      protocol: HTTPS
-      allowedRoutes:
-        namespaces:
-          from: All
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - name: test-tls-secret
+## Add DNS ingress, use if DataPlane service is type LoadBalancer
+#    - name: https
+#      hostname: test.com.br
+#      port: 443
+#      protocol: HTTPS
+#      allowedRoutes:
+#        namespaces:
+#          from: All
+#      tls:
+#        mode: Terminate
+#        certificateRefs:
+#          - name: test-tls-secret
