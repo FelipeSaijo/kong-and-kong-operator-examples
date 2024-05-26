@@ -1,0 +1,86 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-konga-pv
+  labels:
+    app: postgres
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /data/postgresql
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-konga-pvc
+  namespace: kong
+  labels:
+    app: postgres-konga
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-konga
+  namespace: kong
+spec:
+  selector:
+    matchLabels:
+      app: postgres-konga
+  serviceName: postgres-konga
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres-konga
+    spec:
+      containers:
+      - name: postgres-konga
+        image: postgres:9
+        env:
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+        ports:
+        - containerPort: 5432
+        envFrom: 
+          - secretRef:
+              name: postgreskonga
+        volumeMounts:
+        - name: postgres-konga-pvc
+          mountPath: /var/lib/postgresql/data       
+      volumes:
+       - name: postgres-konga-pvc
+         persistentVolumeClaim:
+           claimName: postgres-konga-pvc
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-konga
+  namespace: kong
+spec:
+  selector:
+    app: postgres-konga
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgreskonga
+  namespace: kong
+stringData:
+  POSTGRES_PASSWORD: "4WV6Gyc3T8jQP3z2xs8E45mG7C9swHopHm39TA58"
+  POSTGRES_USER: konga
+  POSTGRES_DB: konga

@@ -1,0 +1,11 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: rate-limiting
+plugin: rate-limiting
+instance_name: rate-limiting-5-hit-hour
+disabled: false
+config:
+  hour: 5
+  policy: local
+  limit_by: ip

@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: konga
+    app.kubernetes.io/name: konga
+  name: konga
+  namespace: kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: konga
+      app.kubernetes.io/name: konga
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: konga
+        app.kubernetes.io/name: konga
+    spec:
+      containers:
+      - name: konga
+        image: pantsel/konga
+        ports:
+        - containerPort: 1337
+          protocol: TCP
+          name: http
+        resources: {}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http   
+        envFrom: 
+          - secretRef:
+              name: kongasecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: konga
+  namespace: kong
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/instance: konga
+    app.kubernetes.io/name: konga
+  ports:
+  - port: 80
+    targetPort: http
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kongasecret
+  namespace: kong
+type: Opaque
+stringData:
+  TOKEN_SECRET: konga
+  DB_ADAPTER: postgres
+  DB_PORT: "5432"
+  DB_DATABASE: konga
+  NODE_ENV: development
+  DB_HOST: "postgres-konga.kong.svc.cluster.local"
+  DB_PASSWORD: "4WV6Gyc3T8jQP3z2xs8E45mG7C9swHopHm39TA58"
+  DB_USER: konga
