@@ -12,8 +12,11 @@ spec:
           - name: proxy
             image: kong:3.6.1
             readinessProbe:
-              initialDelaySeconds: 1
-              periodSeconds: 1
+              initialDelaySeconds: 5
+              periodSeconds: 60
+            # env:
+            #   - name: KONG_PLUGINS
+            #     value: "bundled,serverless-functions"
 ## Create dataplane with service ClusterIP
     network:
       services:

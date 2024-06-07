@@ -1,0 +1,35 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: path-filter-plugin
+plugin: pre-function
+config:
+  access:
+    - |
+      -- lista de paths autorizado
+      local allowed_paths = { "/", "/error", "/metrics" }
+
+      -- PathPrefix configurado na rota
+      local prefix = "/flask"      
+      
+      local request_path = ngx.var.uri
+      
+      if request_path:sub(1, #prefix) == prefix then
+        request_path = request_path:sub(#prefix + 1)
+      end
+
+      if request_path == "" then
+        request_path = "/"
+      end
+
+      local path_allowed = false
+      for _, path in ipairs(allowed_paths) do
+        if request_path == path then
+          path_allowed = true
+          break
+        end
+      end
+
+      if not path_allowed then
+        return kong.response.exit(403, { message = "Forbidden path" })
+      end
